@@ -32,9 +32,8 @@ export default function RootLayout({
       >
         <AuthProvider>
           <Navbar /> {/* Add Navbar here */}
-          <main className="container mx-auto p-4">
             {children}
-          </main>
+          
         </AuthProvider>
       </body>
     </html>

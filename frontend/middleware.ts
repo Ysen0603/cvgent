@@ -33,5 +33,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/', '/login', '/register', '/dashboard/:path*', '/gemini-key-management/:path*', '/cv-analysis/:path*'],
+  matcher: ['/login', '/register', '/dashboard/:path*', '/gemini-key-management/:path*', '/cv-analysis/:path*'],
 };
