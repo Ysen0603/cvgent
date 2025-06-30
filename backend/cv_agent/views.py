@@ -8,7 +8,7 @@ from django.contrib.auth.hashers import make_password
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from .models import GeminiAPIKey
-from .serializers import GeminiAPIKeySerializer, CVUploadSerializer, CVAnalysisResultSerializer
+from .serializers import GeminiAPIKeySerializer, CVUploadSerializer, CVAnalysisResultSerializer, UserSerializer
 from .services.analysis_service import analyze_cv_and_job_description
 
 @api_view(['POST'])
@@ -28,6 +28,12 @@ def register_user(request):
         password=make_password(password) # Hash the password
     )
     return Response({"message": "User registered successfully."}, status=status.HTTP_201_CREATED)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def current_user(request):
+    serializer = UserSerializer(request.user)
+    return Response(serializer.data)
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])

@@ -89,10 +89,35 @@ export const logout = (): void => {
 
 // Helper to get current access token
 export const getAccessToken = (): string | null => {
-  return Cookies.get('accessToken') || null;
+    return Cookies.get('accessToken') || null;
 };
 
 // Helper to get current refresh token
 export const getRefreshToken = (): string | null => {
-  return Cookies.get('refreshToken') || null;
+    return Cookies.get('refreshToken') || null;
+};
+
+export const fetchCurrentUser = async (): Promise<User | null> => {
+    const accessToken = getAccessToken();
+    if (!accessToken) return null;
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/me/`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            }
+        });
+
+        if (response.ok) {
+            return await response.json();
+        } else {
+            console.error('Failed to fetch current user');
+            return null;
+        }
+    } catch (error) {
+        console.error('Error fetching current user:', error);
+        return null;
+    }
 };

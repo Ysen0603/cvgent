@@ -1,5 +1,11 @@
 from rest_framework import serializers
+from django.contrib.auth.models import User
 from .models import GeminiAPIKey, CVAnalysisResult
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email'] # Add other fields as needed
 
 class GeminiAPIKeySerializer(serializers.ModelSerializer):
     class Meta:

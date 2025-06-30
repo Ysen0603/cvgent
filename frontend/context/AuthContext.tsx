@@ -1,7 +1,7 @@
 "use client"
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
 import { AuthContextType, AuthTokens, User } from '../types/auth';
-import { login as apiLogin, register as apiRegister, refreshToken as apiRefreshToken, logout as apiLogout, getAccessToken, getRefreshToken } from '../lib/api/auth';
+import { login as apiLogin, register as apiRegister, refreshToken as apiRefreshToken, logout as apiLogout, getAccessToken, getRefreshToken, fetchCurrentUser } from '../lib/api/auth';
 import { useRouter } from 'next/navigation'; // Import useRouter
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -27,9 +27,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setAccessToken(storedAccessToken);
         setRefreshToken(storedRefreshToken);
         setIsAuthenticated(true);
-        // In a real app, you'd fetch user details from an endpoint using the access token
-        // For now, we'll use a placeholder or decode from token if possible
-        setUser({ id: 1, username: 'testuser' }); // Placeholder user
+        
+        // Fetch actual user data from backend
+        const userData = await fetchCurrentUser();
+        if (userData) {
+          setUser(userData);
+        } else {
+          // If user fetch fails, clear auth state
+          apiLogout();
+          setIsAuthenticated(false);
+        }
       }
       setLoading(false);
     };
@@ -42,9 +49,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setAccessToken(tokens.access);
       setRefreshToken(tokens.refresh);
       setIsAuthenticated(true);
-      setUser({ id: 1, username: username }); // Placeholder user
-      router.push('/'); // Redirect to home or dashboard after login
-      return true;
+      
+      // Fetch actual user data after successful login
+      const userData = await fetchCurrentUser();
+      if (userData) {
+        setUser(userData);
+        router.push('/'); // Redirect to home or dashboard after login
+        return true;
+      }
     }
     return false;
   };
