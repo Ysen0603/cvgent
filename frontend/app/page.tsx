@@ -116,7 +116,7 @@ export default function Home() {
                 </div>
               </div>
               <div className="mt-8 border-t border-slate-700 pt-8 text-center text-sm">
-                <p>© 2024 CVgent. All rights reserved.</p>
+                <p>© 2025 CVgent. All rights reserved.</p>
               </div>
             </div>
           </footer>
