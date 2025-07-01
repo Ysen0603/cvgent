@@ -75,10 +75,16 @@ CVgent is a full-stack web application that leverages the power of Google's Gemi
     ```bash
     npm install
     ```
-3.  **Create a `.env.local` file** in the `frontend` directory and add the backend API URL:
+3.  **Create a `.env.local` file** in the `frontend` directory and add the backend API URL, Resend API Key, and the recipient email for contact form submissions:
     ```
     NEXT_PUBLIC_BACKEND_API_URL=http://localhost:8000/api
+    RESEND_API_KEY=your_resend_api_key_here
+    RESEND_TO_EMAIL=your_recipient_email@example.com
     ```
+    *   `RESEND_API_KEY`: Obtain this from your Resend dashboard.
+    *   `RESEND_TO_EMAIL`: This is the email address where contact form submissions will be sent.
+    *   **Important Note on Email Sending**: For emails to be delivered successfully and not end up in spam, the 'from' address used by Resend must be a domain verified with Resend. In this application, the 'from' address is set to "Contact Form <onbehalfof@resend.dev>" and the 'replyTo' address is set to the sender's email from the contact form. If you wish to use your own verified domain as the 'from' address, you will need to update `frontend/app/api/contact/route.ts` accordingly after verifying your domain with Resend.
+
 4.  **Run the Next.js development server:**
     ```bash
     npm run dev
