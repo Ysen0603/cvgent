@@ -34,7 +34,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (userData) {
           setUser(userData);
         } else {
-          // If user fetch fails, clear auth state
+          // If user fetch fails, clear auth state (fetchWithAuth will handle refresh attempts)
           apiLogout();
           setIsAuthenticated(false);
         }
@@ -56,7 +56,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const userData = await fetchCurrentUser();
       if (userData) {
         setUser(userData);
-        router.push('/'); // Redirect to home or dashboard after login
+        router.push('/'); // Redirect to home 
         return true;
       }
     }
@@ -66,10 +66,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const register = async (username: string, password: string): Promise<boolean> => {
     const success = await apiRegister(username, password);
     if (success) {
-      // Optionally auto-login after registration
+      
       const loggedIn = await login(username, password);
       if (loggedIn) {
-        router.push('/'); // Redirect to home or dashboard after successful registration and login
+        router.push('/'); // Redirect to home 
       }
       return loggedIn;
     }
@@ -87,11 +87,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Function to refresh token (can be called by an interceptor or manually)
   const refreshAuthToken = async () => {
-    if (refreshToken) {
-      const newAccessToken = await apiRefreshToken(refreshToken);
-      if (newAccessToken) {
-        setAccessToken(newAccessToken);
-        return newAccessToken;
+    const latestRefreshToken = getRefreshToken(); // Always get from cookies
+    if (latestRefreshToken) {
+      const tokens = await apiRefreshToken(latestRefreshToken);
+      if (tokens) {
+        setAccessToken(tokens.access);
+        setRefreshToken(tokens.refresh);
+        return tokens.access;
       } else {
         logout(); // Force logout if refresh fails
         return null;

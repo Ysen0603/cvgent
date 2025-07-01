@@ -53,7 +53,7 @@ export const login = async (username: string, password: string): Promise<AuthTok
   }
 };
 
-export const refreshToken = async (refresh: string): Promise<string | null> => {
+export const refreshToken = async (refresh: string): Promise<AuthTokens | null> => {
   try {
     const response = await fetch(`${API_BASE_URL}/token/refresh/`, {
       method: 'POST',
@@ -64,20 +64,17 @@ export const refreshToken = async (refresh: string): Promise<string | null> => {
     });
 
     if (response.ok) {
-      const data = await response.json();
+      const data: AuthTokens = await response.json();
       Cookies.set('accessToken', data.access, { expires: 1/24 }); // Expires in 1 hour
-      return data.access;
+      Cookies.set('refreshToken', data.refresh, { expires: 7 }); // Expires in 7 days
+      return data;
     } else {
       const errorData = await response.json();
       console.error('Token refresh failed:', errorData);
-      Cookies.remove('accessToken');
-      Cookies.remove('refreshToken');
       return null;
     }
   } catch (error) {
     console.error('Error during token refresh:', error);
-    Cookies.remove('accessToken');
-    Cookies.remove('refreshToken');
     return null;
   }
 };
