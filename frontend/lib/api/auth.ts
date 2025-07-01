@@ -119,3 +119,26 @@ export const fetchCurrentUser = async (): Promise<User | null> => {
         return null;
     }
 };
+
+export const updateUserProfile = async (userData: Partial<User>): Promise<boolean> => {
+    try {
+        const response = await fetchWithAuth(`${API_BASE_URL}/me/`, {
+            method: 'PATCH', // Use PATCH for partial updates
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(userData),
+        });
+
+        if (response.ok) {
+            return true;
+        } else {
+            const errorData = await response.json();
+            console.error('Failed to update user profile:', errorData);
+            return false;
+        }
+    } catch (error) {
+        console.error('Error updating user profile:', error);
+        return false;
+    }
+};

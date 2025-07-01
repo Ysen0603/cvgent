@@ -52,7 +52,7 @@ const CVAnalysisForm: React.FC<CVAnalysisFormProps> = ({ onAnalysisComplete }) =
     if (result) {
       onAnalysisComplete(result); // Pass result to parent
     } else {
-      setError('Failed to analyze CV. Please try again.');
+      setError('Failed to analyze CV. Please check your gemini api key and try again.');
       onAnalysisComplete(null); // Pass null to parent on failure
     }
   };

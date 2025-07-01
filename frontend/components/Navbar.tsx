@@ -32,8 +32,8 @@ const Navbar: React.FC = () => {
               <Link className="nav-link text-[var(--text-secondary)] hover:text-[var(--primary-color)] text-sm font-medium leading-normal" href="/cv-analysis">
                 CV Analysis
               </Link>
-              <Link className="nav-link text-[var(--text-secondary)] hover:text-[var(--primary-color)] text-sm font-medium leading-normal" href="/gemini-key-management">
-                Manage API Key
+              <Link className="nav-link text-[var(--text-secondary)] hover:text-[var(--primary-color)] text-sm font-medium leading-normal" href="/settings">
+                Settings
               </Link>
             </>
           )}

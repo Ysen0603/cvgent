@@ -6,6 +6,7 @@ export interface AuthTokens {
 export interface User {
   id: number;
   username: string;
+  email: string; // Add email field
   // Add other user fields as needed
 }
 
@@ -17,4 +18,5 @@ export interface AuthContextType {
   login: (username: string, password: string) => Promise<boolean>;
   register: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
+  fetchCurrentUser: () => Promise<User | null>; // Add fetchCurrentUser to context type
 }

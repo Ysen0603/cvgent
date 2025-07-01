@@ -109,6 +109,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     register,
     logout,
+    fetchCurrentUser: fetchCurrentUser, // Expose the fetchCurrentUser function
   };
 
   if (loading) {
