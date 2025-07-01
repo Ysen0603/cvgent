@@ -1,7 +1,8 @@
 "use client"
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
-import { AuthContextType, AuthTokens, User } from '../types/auth';
+import { AuthContextType, User } from '../types/auth';
 import { login as apiLogin, register as apiRegister, refreshToken as apiRefreshToken, logout as apiLogout, getAccessToken, getRefreshToken, fetchCurrentUser } from '../lib/api/auth';
+import { setRefreshAuthTokenCallback } from '../lib/api/fetchWithAuth';
 import { useRouter } from 'next/navigation'; // Import useRouter
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -41,6 +42,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setLoading(false);
     };
     loadTokens();
+    setRefreshAuthTokenCallback(refreshAuthToken); // Set the callback after AuthContext is initialized
   }, []);
 
   const login = async (username: string, password: string): Promise<boolean> => {

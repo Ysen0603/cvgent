@@ -1,5 +1,6 @@
 import Cookies from 'js-cookie';
 import { AuthTokens, User } from '../../types/auth';
+import { fetchWithAuth } from './fetchWithAuth'; // Import the new fetchWithAuth
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:8000/api';
 
@@ -98,15 +99,12 @@ export const getRefreshToken = (): string | null => {
 };
 
 export const fetchCurrentUser = async (): Promise<User | null> => {
-    const accessToken = getAccessToken();
-    if (!accessToken) return null;
-
+    // Use fetchWithAuth for fetching current user
     try {
-        const response = await fetch(`${API_BASE_URL}/me/`, {
+        const response = await fetchWithAuth(`${API_BASE_URL}/me/`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${accessToken}`
             }
         });
 

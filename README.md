@@ -91,3 +91,4 @@ CVgent is a full-stack web application that leverages the power of Google's Gemi
 *   `POST /api/token/refresh/`: Refresh an access token.
 *   `GET, POST /api/gemini-key/`: Get or set the user's Gemini API key.
 *   `POST /api/analyze-cv/`: Perform the CV analysis.
+*   `GET /api/me/`: Get the current user's profile.

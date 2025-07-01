@@ -1,21 +1,15 @@
-import { getAccessToken } from './auth';
 import { GeminiApiKeyResponse, GeminiApiKeyPayload } from '../../types/gemini';
+import { fetchWithAuth } from './fetchWithAuth'; // Import the new fetchWithAuth
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:8000/api';
 
 export const getGeminiApiKey = async (): Promise<GeminiApiKeyResponse | null> => {
-  const accessToken = getAccessToken();
-  if (!accessToken) {
-    console.error('No access token available for Gemini API key retrieval.');
-    return null;
-  }
-
   try {
-    const response = await fetch(`${API_BASE_URL}/gemini-key/`, {
+    // Use fetchWithAuth for authenticated requests
+    const response = await fetchWithAuth(`${API_BASE_URL}/gemini-key/`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
       },
     });
 
@@ -34,19 +28,13 @@ export const getGeminiApiKey = async (): Promise<GeminiApiKeyResponse | null> =>
 };
 
 export const setGeminiApiKey = async (apiKey: string): Promise<boolean> => {
-  const accessToken = getAccessToken();
-  if (!accessToken) {
-    console.error('No access token available for setting Gemini API key.');
-    return false;
-  }
-
   try {
+    // Use fetchWithAuth for authenticated requests
     const payload: GeminiApiKeyPayload = { api_key: apiKey };
-    const response = await fetch(`${API_BASE_URL}/gemini-key/`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/gemini-key/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
       },
       body: JSON.stringify(payload),
     });

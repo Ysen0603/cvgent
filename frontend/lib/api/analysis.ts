@@ -1,26 +1,18 @@
-import { getAccessToken } from './auth';
 import { CVAnalysisResponse } from '../../types/analysis';
+import { fetchWithAuth } from './fetchWithAuth'; // Import the new fetchWithAuth
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:8000/api';
 
 export const analyzeCV = async (cvFile: File, jobDescription: string): Promise<CVAnalysisResponse | null> => {
-  const accessToken = getAccessToken();
-  if (!accessToken) {
-    console.error('No access token available for CV analysis.');
-    return null;
-  }
-
   const formData = new FormData();
   formData.append('cv_file', cvFile);
   formData.append('job_description', jobDescription);
 
   try {
-    const response = await fetch(`${API_BASE_URL}/analyze-cv/`, {
+    // Use fetchWithAuth for authenticated requests
+    const response = await fetchWithAuth(`${API_BASE_URL}/analyze-cv/`, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        // 'Content-Type': 'multipart/form-data' is automatically set by fetch when using FormData
-      },
+      // fetchWithAuth will handle the Authorization header
       body: formData,
     });
 
