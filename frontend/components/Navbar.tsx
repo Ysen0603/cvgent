@@ -1,5 +1,6 @@
 "use client"
 import React from 'react';
+import { FileText } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '../context/AuthContext';
 
@@ -9,11 +10,10 @@ const Navbar: React.FC = () => {
   return (
     <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-sm">
       <div className="container mx-auto flex items-center justify-between whitespace-nowrap px-6 py-4">
-        <div className="flex items-center gap-3 text-[var(--text-primary)]">
-          <svg className="h-8 w-8 text-[var(--primary-color)]" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-            <path d="M6 6H42L36 24L42 42H6L12 24L6 6Z" fill="currentColor"></path>
-          </svg>
-          <h2 className="text-2xl font-bold leading-tight tracking-tighter">CVgent</h2>
+        <div className="flex items-center gap-3">
+          <h1 className="text-xl font-bold tracking-tighter sm:text-1xl md:text-xl lg:text-3xl text-transparent bg-clip-text bg-gradient-to-r from-[var(--primary-color)] via-[#1c75d3] to-[#114e8a]">
+          CVgent
+        </h1>
         </div>
         
         <nav className="hidden md:flex items-center gap-8">

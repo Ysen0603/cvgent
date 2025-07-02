@@ -30,12 +30,9 @@ const RegisterForm: React.FC = () => {
     <div className="relative flex min-h-screen flex-col justify-center overflow-hidden">
       <div className="mx-auto flex w-full max-w-lg flex-col px-6">
         <div className="flex items-center justify-center gap-3 mb-8">
-          <div className="text-blue-600">
-            <svg className="h-8 w-8" fill="currentColor" viewBox="0 0 48 48">
-              <path d="M6 6H42L36 24L42 42H6L12 24L6 6Z"></path>
-            </svg>
-          </div>
-          <h1 className="text-2xl font-bold text-slate-800">CVgent</h1>
+          <h1 className="text-xl font-bold tracking-tighter sm:text-1xl md:text-xl lg:text-3xl text-transparent bg-clip-text bg-gradient-to-r from-[var(--primary-color)] via-[#1c75d3] to-[#114e8a]">
+          CVgent
+        </h1>
         </div>
         <div className="rounded-xl bg-white p-6 shadow-xl sm:p-10">
           <div className="w-full">

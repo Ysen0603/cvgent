@@ -22,12 +22,9 @@ const LoginForm: React.FC = () => {
     <div className="relative flex min-h-screen flex-col justify-center overflow-hidden">
       <div className="mx-auto flex w-full max-w-lg flex-col px-6">
         <div className="flex items-center justify-center gap-3 mb-8">
-          <div className="text-blue-600">
-            <svg className="h-8 w-8" fill="currentColor" viewBox="0 0 48 48">
-              <path d="M6 6H42L36 24L42 42H6L12 24L6 6Z"></path>
-            </svg>
-          </div>
-          <h1 className="text-2xl font-bold text-slate-800">CVgent</h1>
+          <h1 className="text-xl font-bold tracking-tighter sm:text-1xl md:text-xl lg:text-3xl text-transparent bg-clip-text bg-gradient-to-r from-[var(--primary-color)] via-[#1c75d3] to-[#114e8a]">
+          CVgent
+        </h1>
         </div>
         <div className="rounded-xl bg-white p-6 shadow-xl sm:p-10">
           <div className="w-full">
@@ -75,15 +72,7 @@ const LoginForm: React.FC = () => {
                     />
                   </div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <input className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-600 checked:bg-[image:--checkbox-tick-svg]" id="remember-me" name="remember-me" type="checkbox"/>
-                    <label className="ml-2 block text-sm text-slate-700" htmlFor="remember-me">Remember me</label>
-                  </div>
-                  <div className="text-sm">
-                    <a className="font-medium text-blue-600 hover:text-blue-500" href="#">Forgot password?</a>
-                  </div>
-                </div>
+                
                 <div>
                   <button
                     className="flex w-full justify-center rounded-md bg-blue-600 px-3 py-2.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"

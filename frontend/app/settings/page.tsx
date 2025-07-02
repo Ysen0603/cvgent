@@ -40,35 +40,48 @@ const SettingsPage: React.FC = () => {
     setError('');
 
     let success = true;
+    let updated = false;
 
-    // Update User Profile
-    if (username !== user?.username || email !== user?.email) {
-      const userUpdateSuccess = await updateUserProfile({ username, email });
+    // Prepare data for user profile update (only send changed and non-empty fields)
+    const profileData: { username?: string; email?: string } = {};
+    if (username && username !== user?.username) {
+      profileData.username = username;
+    }
+    if (email && email !== user?.email) {
+      profileData.email = email;
+    }
+
+    // Update User Profile if any field changed
+    if (Object.keys(profileData).length > 0) {
+      const userUpdateSuccess = await updateUserProfile(profileData);
       if (userUpdateSuccess) {
         setMessage('Account information updated successfully!');
-        await refetchUser(); // Re-fetch user data to update context
-        /* console.log('User after refetchUser (inside handleSubmit):', user);
-        console.log('Local states after refetchUser (inside handleSubmit):', { username, email }); */
+        await refetchUser();
+        updated = true;
       } else {
         setError('Failed to update account information.');
         success = false;
       }
     }
 
-    // Update Gemini API Key
+    // Update Gemini API Key if filled
     if (geminiApiKey) {
       const geminiKeySuccess = await setGeminiApiKey(geminiApiKey);
       if (geminiKeySuccess) {
         setMessage(prev => prev + (prev ? ' ' : '') + 'Gemini API Key updated successfully!');
         setCurrentGeminiApiKey(geminiApiKey);
-        setGeminiApiKeyInput(''); // Clear input field
+        setGeminiApiKeyInput('');
+        updated = true;
       } else {
         setError(prev => prev + (prev ? ' ' : '') + 'Failed to update Gemini API Key.');
         success = false;
       }
     }
 
-    
+    // If nothing was updated
+    if (!updated && success) {
+      setMessage('Nothing to update.');
+    }
   };
 
   if (loading) {
@@ -97,7 +110,6 @@ const SettingsPage: React.FC = () => {
                   id="username"
                   name="username"
                   placeholder="e.g. JohnDoe"
-                  required
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
@@ -111,7 +123,6 @@ const SettingsPage: React.FC = () => {
                   id="email"
                   name="email"
                   placeholder="e.g. john.doe@example.com"
-                  required
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -138,9 +149,9 @@ const SettingsPage: React.FC = () => {
               <p className="mt-1 text-xs text-gray-500">Your API key is stored securely and used solely for CV analysis.</p>
               {
                 currentGeminiApiKey ? (
-                  <p className="mt-1 text-xs text-green-800">Current API Key is set. (For security, full key is not displayed)</p>
+                  <p className="mt-1 text-xs text-green-800 font-bold">Current API Key is set. (For security, full key is not displayed)</p>
                 ) : (
-                  <p className="mt-1 text-xs text-gray-500">No Gemini API Key set.</p>
+                  <p className="mt-1 text-xs text-red-500 font-bold">No Gemini API Key set.</p>
                 )
               }
             </div>
