@@ -100,27 +100,13 @@ const SettingsPage: React.FC = () => {
     }
   };
 
- const handleCvFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-   if (e.target.files && e.target.files[0]) {
-     setCvFile(e.target.files[0]);
-     setCvUploadMessage('');
-     setCvUploadError('');
-   } else {
-     setCvFile(null);
-   }
- };
-
- const handleCvUpload = async () => {
-   if (!cvFile) {
-     setCvUploadError('Please select a CV file to upload.');
-     return;
-   }
+ const handleCvUpload = async (fileToUpload: File) => {
    setCvUploadMessage('');
    setCvUploadError('');
    setLoading(true);
    try {
-     await uploadCv(cvFile);
-     const updatedProfile = await uploadCv(cvFile);
+     await uploadCv(fileToUpload);
+     const updatedProfile = await uploadCv(fileToUpload); // Assuming uploadCv returns the updated profile
      setCvUploadMessage('CV uploaded successfully!');
      setCvFile(null); // Clear selected file
      if (fileInputRef.current) {
@@ -132,6 +118,16 @@ const SettingsPage: React.FC = () => {
      setCvUploadError('Failed to upload CV. Please try again.');
    } finally {
      setLoading(false);
+   }
+ };
+
+ const handleCvFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+   if (e.target.files && e.target.files[0]) {
+     const file = e.target.files[0];
+     setCvFile(file); // Set the file for preview if needed
+     handleCvUpload(file); // Immediately trigger upload
+   } else {
+     setCvFile(null);
    }
  };
 
@@ -226,6 +222,14 @@ const SettingsPage: React.FC = () => {
                 )
               }
             </div>
+            <div className="pt-6 flex justify-end">
+            <button
+              type="submit"
+              className="group relative flex justify-center rounded-md border border-transparent bg-[var(--primary-color)] hover:bg-[var(--text-primary)] cursor-pointer py-2.5 px-6 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:ring-offset-2 transition-colors"
+            >
+              Update Settings
+            </button>
+          </div>
           </section>
 
           <section className="pt-6">
@@ -237,9 +241,7 @@ const SettingsPage: React.FC = () => {
               {user?.userprofile?.cv_url ? (
                 <div className="flex flex-col gap-4 bg-gray-50 p-4 rounded-lg shadow-sm">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm text-gray-700">
-                      Current CV: <a href={user.userprofile.cv_url} target="_blank" rel="noopener noreferrer" className="ml-2 text-[var(--primary-color)] hover:underline">Open in new tab</a>
-                    </p>
+                    <p className="text-sm font-semibold text-gray-900">Uploaded CV:</p>
                     <button
                       type="button"
                       onClick={handleCvDelete}
@@ -251,11 +253,11 @@ const SettingsPage: React.FC = () => {
                   <PdfPreview url={user.userprofile.cv_url} />
                 </div>
               ) : (
-                <p className="text-sm text-gray-500">No CV currently uploaded.</p>
+                <p className="text-sm font-semibold text-red-500">No CV currently uploaded.</p>
               )}
 
               <div className="mt-4">
-                <label htmlFor="cv-upload" className="block text-sm font-medium text-gray-700 pb-1.5">Upload New CV (PDF only)</label>
+                <label htmlFor="cv-upload" className="block text-sm font-medium text-gray-700 pb-1.5">Upload your CV (PDF only)</label>
                 <input
                   id="cv-upload"
                   name="cv-upload"
@@ -268,29 +270,15 @@ const SettingsPage: React.FC = () => {
                     file:rounded-md file:border-0
                     file:text-sm file:font-semibold
                     file:bg-[var(--primary-color)] file:text-white
-                    hover:file:bg-[var(--text-primary)]"
+                    hover:file:bg-[var(--text-primary)]
+                    cursor-pointer
+                    "
                 />
-                <p className="mt-1 text-xs text-gray-500">Max file size: 5MB. Only PDF files are allowed.</p>
-                <button
-                  type="button"
-                  onClick={handleCvUpload}
-                  disabled={!cvFile}
-                  className="mt-3 inline-flex justify-center rounded-md border border-transparent bg-[var(--primary-color)] py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Upload CV
-                </button>
               </div>
             </div>
           </section>
 
-          <div className="pt-6 flex justify-end">
-            <button
-              type="submit"
-              className="group relative flex justify-center rounded-md border border-transparent bg-[var(--primary-color)] hover:bg-[var(--text-primary)] cursor-pointer py-2.5 px-6 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:ring-offset-2 transition-colors"
-            >
-              Update Settings
-            </button>
-          </div>
+          
         </form>
       </div>
     </main>
