@@ -1,50 +1,32 @@
 "use client";
-import React, { useState, useRef } from 'react'; // Import useRef
-import ReactMarkdown from 'react-markdown'; // Import ReactMarkdown
+import React, { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { analyzeCV } from '../lib/api/analysis';
 import { CVAnalysisResponse } from '../types/analysis';
-import Link from 'next/link'; // Import Link
-import { Upload, FileText, TrendingUp, File } from 'lucide-react'; // Import Lucide icons
+import Link from 'next/link';
+import { FileText, TrendingUp } from 'lucide-react'; // Removed Upload, File
 
 interface CVAnalysisFormProps {
   onAnalysisComplete: (result: CVAnalysisResponse | null) => void;
 }
 
 const CVAnalysisForm: React.FC<CVAnalysisFormProps> = ({ onAnalysisComplete }) => {
-  const [cvFile, setCvFile] = useState<File | null>(null);
   const [jobDescription, setJobDescription] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setCvFile(e.target.files[0]);
-    } else {
-      setCvFile(null);
-    }
-  };
-
-  const handleDivClick = () => {
-    fileInputRef.current?.click();
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    if (!cvFile) {
-      setError('Please upload a CV file.');
-      return;
-    }
     if (!jobDescription.trim()) {
       setError('Please enter a job description.');
       return;
     }
 
     setLoading(true);
-    const result = await analyzeCV(cvFile, jobDescription);
+    // The backend will now use the stored CV, so we don't pass cvFile
+    const result = await analyzeCV(jobDescription);
     setLoading(false);
 
     if (result) {
@@ -56,27 +38,10 @@ const CVAnalysisForm: React.FC<CVAnalysisFormProps> = ({ onAnalysisComplete }) =
   };
 
   return (
-    <main className="flex flex-1 justify-center w-1/2">
+    <div className="w-full lg:w-1/2 p-4 bg-white rounded-xl shadow-lg flex flex-col">
       <div className="flex flex-col w-full gap-8">
         <div className="bg-white shadow-xl rounded-xl p-6 sm:p-10 space-y-8">
           <div className="space-y-6">
-            <div>
-              <label className="block text-lg font-semibold text-[var(--text-primary)] pb-2" htmlFor="cv-upload">
-                <Upload className="inline-block align-middle mr-2 h-6 w-6 text-[var(--primary-color)]" />
-                Upload Your CV (PDF)
-              </label>
-              <div className="mt-1 flex justify-center px-6 pt-8 pb-8 border-2 border-[var(--border-color)] border-dashed rounded-xl hover:border-[var(--primary-color)] transition-colors duration-200 bg-slate-50 cursor-pointer" onClick={handleDivClick}>
-                <div className="space-y-1 text-center">
-                  <File className="mx-auto h-12 w-12 text-gray-400" />
-                  <div className="flex text-sm text-[var(--text-secondary)]">
-                    <p className="pl-1">Drag and drop your PDF file here, or <span className="font-medium text-[var(--primary-color)]">click to browse</span></p>
-                  </div>
-                  <p className="text-xs text-gray-500">Max file size: 5MB</p>
-                </div>
-                <input accept=".pdf" className="sr-only" id="cv-upload" name="cv-upload" type="file" onChange={handleFileChange} ref={fileInputRef} />
-              </div>
-              {cvFile && <p className="mt-2 text-sm text-gray-500 text-center">Selected file: {cvFile.name}</p>}
-            </div>
             <div>
               <label className="block text-lg font-semibold text-[var(--text-primary)] pb-2" htmlFor="job-description">
                 <FileText className="inline-block align-middle mr-2 h-6 w-6 text-[var(--primary-color)]" />
@@ -113,7 +78,7 @@ const CVAnalysisForm: React.FC<CVAnalysisFormProps> = ({ onAnalysisComplete }) =
           }
         </div>
       </div>
-    </main>
+    </div>
   );
 };
 

@@ -3,11 +3,16 @@ export interface AuthTokens {
   refresh: string;
 }
 
+export interface UserProfile {
+  cv_file: string | null;
+  cv_url: string | null;
+}
+
 export interface User {
   id: number;
   username: string;
-  email: string; // Add email field
-  // Add other user fields as needed
+  email: string;
+  userprofile: UserProfile | null;
 }
 
 export interface AuthContextType {
@@ -18,5 +23,6 @@ export interface AuthContextType {
   login: (username: string, password: string) => Promise<boolean>;
   register: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
-  fetchCurrentUser: () => Promise<User | null>; // Add fetchCurrentUser to context type
+  fetchCurrentUser: () => Promise<User | null>;
+  updateUserCvProfile: (newProfile: UserProfile | null) => void;
 }

@@ -1,26 +1,29 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { getGeminiApiKey, setGeminiApiKey } from '../../lib/api/gemini';
-import { updateUserProfile } from '../../lib/api/auth'; // This function will be created/modified
+import { updateUserProfile } from '../../lib/api/auth';
+import { uploadCv, deleteCv } from '../../lib/api/userCv'; // Removed getUserCv
+import PdfPreview from '../../components/PdfPreview';
 
 const SettingsPage: React.FC = () => {
-  const { user, fetchCurrentUser: refetchUser } = useAuth();
+  const { user, fetchCurrentUser: refetchUser, updateUserCvProfile } = useAuth();
   console.log('User from AuthContext (initial/re-render):', user);
   const [username, setUsername] = useState(user?.username || '');
   const [email, setEmail] = useState(user?.email || '');
   const [geminiApiKey, setGeminiApiKeyInput] = useState('');
   const [currentGeminiApiKey, setCurrentGeminiApiKey] = useState<string | null>(null);
+  const [cvFile, setCvFile] = useState<File | null>(null);
+  const [cvUploadMessage, setCvUploadMessage] = useState('');
+  const [cvUploadError, setCvUploadError] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
+  // Initial fetch for Gemini API Key and user data
   useEffect(() => {
-    if (user) {
-      setUsername(user.username || '');
-      setEmail(user.email || '');
-    }
-    const fetchKeysAndUser = async () => {
+    const fetchInitialData = async () => {
       setLoading(true);
       // Fetch Gemini API Key
       const geminiResponse = await getGeminiApiKey();
@@ -29,10 +32,23 @@ const SettingsPage: React.FC = () => {
       } else {
         setCurrentGeminiApiKey(null);
       }
+      // Ensure user data is fetched on initial load
+      await refetchUser();
       setLoading(false);
     };
-    fetchKeysAndUser();
+    fetchInitialData();
+  }, []); // Empty dependency array means it runs once on mount
+
+  // Update local states when user object from context changes
+  useEffect(() => {
+    if (user) {
+      setUsername(user.username || '');
+      setEmail(user.email || '');
+    }
   }, [user]);
+
+  // Removed the previous useEffect that depended on user and fetched all data
+  // Now, initial data is fetched once, and user data updates via AuthContext
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,9 +100,60 @@ const SettingsPage: React.FC = () => {
     }
   };
 
-  if (loading) {
-    return <div className="text-center py-8">Loading settings...</div>;
-  }
+ const handleCvFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+   if (e.target.files && e.target.files[0]) {
+     setCvFile(e.target.files[0]);
+     setCvUploadMessage('');
+     setCvUploadError('');
+   } else {
+     setCvFile(null);
+   }
+ };
+
+ const handleCvUpload = async () => {
+   if (!cvFile) {
+     setCvUploadError('Please select a CV file to upload.');
+     return;
+   }
+   setCvUploadMessage('');
+   setCvUploadError('');
+   setLoading(true);
+   try {
+     await uploadCv(cvFile);
+     const updatedProfile = await uploadCv(cvFile);
+     setCvUploadMessage('CV uploaded successfully!');
+     setCvFile(null); // Clear selected file
+     if (fileInputRef.current) {
+       fileInputRef.current.value = ''; // Clear file input
+     }
+     updateUserCvProfile(updatedProfile); // Directly update context
+   } catch (err) {
+     console.error('Error uploading CV:', err);
+     setCvUploadError('Failed to upload CV. Please try again.');
+   } finally {
+     setLoading(false);
+   }
+ };
+
+ const handleCvDelete = async () => {
+   setCvUploadMessage('');
+   setCvUploadError('');
+   setLoading(true);
+   try {
+     await deleteCv(); // This now returns null on success
+     setCvUploadMessage('CV deleted successfully!');
+     updateUserCvProfile(null); // Directly update context to clear CV
+   } catch (err) {
+     console.error('Error deleting CV:', err);
+     setCvUploadError('Failed to delete CV. Please try again.');
+   } finally {
+     setLoading(false);
+   }
+ };
+
+ if (loading) {
+   return <div className="text-center py-8">Loading settings...</div>;
+ }
 
   return (
     <main className="flex flex-1 justify-center py-8 px-4 sm:px-6 lg:px-8">
@@ -156,6 +223,62 @@ const SettingsPage: React.FC = () => {
               }
             </div>
           </section>
+
+          <section className="pt-6">
+            <h3 className="text-xl font-semibold text-gray-800 mb-6 border-b pb-3">CV Management</h3>
+            <div className="space-y-4">
+              {cvUploadMessage && <p className="text-green-600 text-center">{cvUploadMessage}</p>}
+              {cvUploadError && <p className="text-red-600 text-center">{cvUploadError}</p>}
+
+              {user?.userprofile?.cv_url ? (
+                <div className="flex flex-col gap-4 bg-gray-50 p-4 rounded-lg shadow-sm">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-gray-700">
+                      Current CV: <a href={user.userprofile.cv_url} target="_blank" rel="noopener noreferrer" className="ml-2 text-[var(--primary-color)] hover:underline">Open in new tab</a>
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleCvDelete}
+                      className="ml-4 inline-flex justify-center rounded-md border border-transparent bg-red-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                    >
+                      Remove CV
+                    </button>
+                  </div>
+                  <PdfPreview url={user.userprofile.cv_url} />
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500">No CV currently uploaded.</p>
+              )}
+
+              <div className="mt-4">
+                <label htmlFor="cv-upload" className="block text-sm font-medium text-gray-700 pb-1.5">Upload New CV (PDF only)</label>
+                <input
+                  id="cv-upload"
+                  name="cv-upload"
+                  type="file"
+                  accept=".pdf"
+                  onChange={handleCvFileChange}
+                  ref={fileInputRef}
+                  className="block w-full text-sm text-gray-500
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded-md file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-[var(--primary-color)] file:text-white
+                    hover:file:bg-[var(--text-primary)]"
+                />
+                <p className="mt-1 text-xs text-gray-500">Max file size: 5MB. Only PDF files are allowed.</p>
+                <button
+                  type="button"
+                  onClick={handleCvUpload}
+                  disabled={!cvFile}
+                  className="mt-3 inline-flex justify-center rounded-md border border-transparent bg-[var(--primary-color)] py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Upload CV
+                </button>
+              </div>
+            </div>
+          </section>
+
           <div className="pt-6 flex justify-end">
             <button
               type="submit"

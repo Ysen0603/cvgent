@@ -1,11 +1,18 @@
 "use client";
-import React, { useState } from 'react';
-import CVAnalysisForm from '../../components/CVAnalysisForm';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import CVAnalysisForm from '../../components/CVAnalysisForm'; // Keep for job description input
 import CVAnalysisResult from '../../components/CVAnalysisResult';
 import { CVAnalysisResponse } from '../../types/analysis';
 
 const CVAnalysisPage: React.FC = () => {
+  const { fetchCurrentUser } = useAuth();
   const [analysisResult, setAnalysisResult] = useState<CVAnalysisResponse | null>(null);
+
+  useEffect(() => {
+    // Ensure user data is fresh to get the latest CV URL
+    fetchCurrentUser();
+  }, []);
 
   const handleAnalysisComplete = (result: CVAnalysisResponse | null) => {
     setAnalysisResult(result);
@@ -22,9 +29,10 @@ const CVAnalysisPage: React.FC = () => {
       
       <div className="flex flex-col lg:flex-row gap-2">
       
+          
           <CVAnalysisForm onAnalysisComplete={handleAnalysisComplete} />
         
-        {analysisResult && <CVAnalysisResult analysisResult={analysisResult} />}     
+        {analysisResult && <CVAnalysisResult analysisResult={analysisResult} />}
       </div>
     </div>
   );

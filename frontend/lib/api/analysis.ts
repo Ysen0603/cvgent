@@ -3,9 +3,8 @@ import { fetchWithAuth } from './fetchWithAuth'; // Import the new fetchWithAuth
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:8000/api';
 
-export const analyzeCV = async (cvFile: File, jobDescription: string): Promise<CVAnalysisResponse | null> => {
+export const analyzeCV = async (jobDescription: string): Promise<CVAnalysisResponse | null> => {
   const formData = new FormData();
-  formData.append('cv_file', cvFile);
   formData.append('job_description', jobDescription);
 
   try {

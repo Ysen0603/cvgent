@@ -4,11 +4,14 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
+from django.http import FileResponse, Http404
+import os
+from django.conf import settings
 
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .models import GeminiAPIKey
-from .serializers import GeminiAPIKeySerializer, CVUploadSerializer, CVAnalysisResultSerializer, UserSerializer
+from .models import GeminiAPIKey, UserProfile
+from .serializers import GeminiAPIKeySerializer, CVUploadSerializer, CVAnalysisResultSerializer, UserSerializer, UserProfileSerializer
 from .services.analysis_service import analyze_cv_and_job_description
 
 @api_view(['POST'])
@@ -66,8 +69,13 @@ def manage_gemini_api_key(request):
 def cv_analysis(request):
     serializer = CVUploadSerializer(data=request.data)
     if serializer.is_valid():
-        cv_file = serializer.validated_data['cv_file']
         job_description = serializer.validated_data['job_description']
+        
+        user_profile = request.user.userprofile
+        if not user_profile or not user_profile.cv_file:
+            return Response({"error": "No CV found for the current user. Please upload your CV in the settings."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        cv_file = user_profile.cv_file
 
         result, status_code = analyze_cv_and_job_description(request.user, cv_file, job_description)
         
@@ -78,3 +86,47 @@ def cv_analysis(request):
         else:
             return Response(result, status=status_code)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET', 'POST', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def manage_user_cv(request):
+    user_profile, created = UserProfile.objects.get_or_create(user=request.user)
+
+    if request.method == 'GET':
+        serializer = UserProfileSerializer(user_profile)
+        return Response(serializer.data)
+
+    elif request.method == 'POST':
+        cv_file = request.FILES.get('cv_file')
+        if not cv_file:
+            return Response({"error": "No CV file provided."}, status=status.HTTP_400_BAD_REQUEST)
+
+        user_profile.cv_file = cv_file
+        user_profile.save() # Save the file first so cv_file.url is updated with the actual saved path
+        
+        # Now, construct the cv_url using the actual URL of the saved file
+        user_profile.cv_url = request.build_absolute_uri(user_profile.cv_file.url)
+        user_profile.save() # Save again to update cv_url
+        serializer = UserProfileSerializer(user_profile)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    elif request.method == 'DELETE':
+        if user_profile.cv_file:
+            user_profile.cv_file.delete() # Deletes the file from storage
+            user_profile.cv_file = None
+            user_profile.cv_url = None
+            user_profile.save()
+            return Response({"message": "CV deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+        return Response({"message": "No CV to delete."}, status=status.HTTP_404_NOT_FOUND)
+
+# Serve PDF inline (for CV preview)
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def serve_pdf_inline(request, filename):
+    file_path = os.path.join(settings.MEDIA_ROOT, filename)
+    if not os.path.exists(file_path):
+        raise Http404
+    response = FileResponse(open(file_path, 'rb'), content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="{filename}"'
+    response['X-Frame-Options'] = 'SAMEORIGIN'  # Allow iframe embedding from same origin
+    return response

@@ -7,7 +7,7 @@ backend/cv_agent/__pycache__/
 backend/cvgent/__pycache__/
 backend/cv_agent/migrations/__pycache__/
 backend/cv_agent/services/__pycache__/
-backend/cv_files/
+backend/media/
 
 # Frontend
 frontend/node_modules/

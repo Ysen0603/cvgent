@@ -1,6 +1,6 @@
 "use client"
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
-import { AuthContextType, User } from '../types/auth';
+import { AuthContextType, User, UserProfile } from '../types/auth';
 import { login as apiLogin, register as apiRegister, refreshToken as apiRefreshToken, logout as apiLogout, getAccessToken, getRefreshToken, fetchCurrentUser } from '../lib/api/auth';
 import { setRefreshAuthTokenCallback } from '../lib/api/fetchWithAuth';
 import { useRouter } from 'next/navigation'; // Import useRouter
@@ -32,7 +32,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // Fetch actual user data from backend
         const userData = await fetchCurrentUser();
         if (userData) {
-          setUser(userData);
+          setUser({ ...userData }); // Ensure a new object reference to trigger updates
         } else {
           // If user fetch fails, clear auth state (fetchWithAuth will handle refresh attempts)
           apiLogout();
@@ -55,7 +55,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Fetch actual user data after successful login
       const userData = await fetchCurrentUser();
       if (userData) {
-        setUser(userData);
+        setUser({ ...userData }); // Ensure a new object reference to trigger updates
         router.push('/'); // Redirect to home 
         return true;
       }
@@ -103,6 +103,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return null;
   };
 
+  // Function to directly update user's CV profile in context
+  const updateUserCvProfile = (newProfile: UserProfile | null) => {
+    setUser(prevUser => {
+      if (!prevUser) return null;
+      return {
+        ...prevUser,
+        userprofile: newProfile,
+      };
+    });
+  };
+
   const contextValue: AuthContextType = {
     isAuthenticated,
     user,
@@ -111,7 +122,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     register,
     logout,
-    fetchCurrentUser: fetchCurrentUser, // Expose the fetchCurrentUser function
+    fetchCurrentUser: fetchCurrentUser,
+    updateUserCvProfile,
   };
 
   if (loading) {
