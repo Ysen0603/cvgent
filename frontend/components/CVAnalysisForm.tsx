@@ -43,7 +43,7 @@ const CVAnalysisForm: React.FC<CVAnalysisFormProps> = ({ onAnalysisComplete }) =
   };
 
   return (
-    <div className="bg-white shadow-sm rounded-xl p-6 sm:p-8">
+    <div className="bg-white shadow-sm rounded-xl p-6 sm:p-8 ">
       <div className="space-y-6">
         <div>
           <label className="block text-lg font-semibold text-[var(--text-primary)] pb-2" htmlFor="job-description">

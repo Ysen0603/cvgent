@@ -19,7 +19,7 @@ const CVAnalysisPage: React.FC = () => {
   };
 
   return (
-    <div className="mx-auto p-8 ">
+    <div className="mx-auto p-8 w-full ">
       <div className="text-center mb-12">
         <h2 className="text-[var(--text-primary)] text-3xl sm:text-4xl font-bold leading-tight tracking-tight mb-4">
           Optimize Your CV in Seconds
@@ -29,7 +29,7 @@ const CVAnalysisPage: React.FC = () => {
         </p>
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-8">
         <CVAnalysisForm onAnalysisComplete={handleAnalysisComplete} />
         <div className="max-h-[500px]">
           {analysisResult ? (
