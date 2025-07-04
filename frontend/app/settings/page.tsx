@@ -139,6 +139,8 @@ const SettingsPage: React.FC = () => {
    setCvUploadMessage('');
    setCvUploadError('');
    setLoading(true);
+   // Optimistically remove the CV from the UI before deleting
+   updateUserCvProfile({ ...user?.userprofile, cv_url: null, cv_file: null });
    try {
      await deleteCv(); // This now returns null on success
      setCvUploadMessage('CV deleted successfully!');
@@ -146,6 +148,8 @@ const SettingsPage: React.FC = () => {
    } catch (err) {
      console.error('Error deleting CV:', err);
      setCvUploadError('Failed to delete CV. Please try again.');
+     // Optionally restore the CV if deletion failed
+     await refetchUser();
    } finally {
      setLoading(false);
    }

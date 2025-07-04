@@ -7,6 +7,7 @@ from django.contrib.auth.hashers import make_password
 from django.http import FileResponse, Http404
 import os
 from django.conf import settings
+import time
 
 from rest_framework_simplejwt.views import TokenObtainPairView
 
@@ -103,8 +104,6 @@ def manage_user_cv(request):
 
         user_profile.cv_file = cv_file
         user_profile.save() # Save the file first so cv_file.url is updated with the actual saved path
-        
-        # Now, construct the cv_url using the actual URL of the saved file
         user_profile.cv_url = request.build_absolute_uri(user_profile.cv_file.url)
         user_profile.save() # Save again to update cv_url
         serializer = UserProfileSerializer(user_profile)
@@ -112,7 +111,14 @@ def manage_user_cv(request):
 
     elif request.method == 'DELETE':
         if user_profile.cv_file:
-            user_profile.cv_file.delete() # Deletes the file from storage
+            try:
+                user_profile.cv_file.delete() # Deletes the file from storage
+            except PermissionError:
+                time.sleep(0.5)
+                try:
+                    user_profile.cv_file.delete()
+                except PermissionError:
+                    return Response({"message": "File is currently in use. Please close any preview and try again."}, status=423)
             user_profile.cv_file = None
             user_profile.cv_url = None
             user_profile.save()

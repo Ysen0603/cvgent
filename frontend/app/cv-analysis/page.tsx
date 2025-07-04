@@ -19,20 +19,33 @@ const CVAnalysisPage: React.FC = () => {
   };
 
   return (
-    <div className="mx-auto px-4 py-8 ">
-      <div className="text-center space-y-3 mb-12">
-        <h2 className="text-[var(--text-primary)] text-3xl sm:text-4xl font-bold leading-tight tracking-tight">Optimize Your CV in Seconds</h2>
-        <p className="text-[var(--text-secondary)] text-base sm:text-lg font-normal leading-relaxed max-w-xl mx-auto">
-          Simply upload your CV and paste the job description. Our AI will analyze them and provide actionable insights.
+    <div className="mx-auto p-8 ">
+      <div className="text-center mb-12">
+        <h2 className="text-[var(--text-primary)] text-3xl sm:text-4xl font-bold leading-tight tracking-tight mb-4">
+          Optimize Your CV in Seconds
+        </h2>
+        <p className="text-[var(--text-secondary)] text-base sm:text-lg max-w-2xl mx-auto">
+          Simply paste the job description. Our AI will analyze your CV and provide actionable insights.
         </p>
       </div>
       
-      <div className="flex flex-col lg:flex-row gap-2">
-      
-          
-          <CVAnalysisForm onAnalysisComplete={handleAnalysisComplete} />
-        
-        {analysisResult && <CVAnalysisResult analysisResult={analysisResult} />}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-8">
+        <CVAnalysisForm onAnalysisComplete={handleAnalysisComplete} />
+        <div className="max-h-[500px]">
+          {analysisResult ? (
+            <CVAnalysisResult analysisResult={analysisResult} />
+          ) : (
+            <div className="bg-white shadow-xl rounded-xl p-8 h-full flex flex-col items-center justify-center text-center">
+              
+              <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                Analysis Results
+              </h3>
+              <p className="text-gray-500 max-w-xs">
+                Submit a job description to see your CV analysis results
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
