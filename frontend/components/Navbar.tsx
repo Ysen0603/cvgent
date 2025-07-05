@@ -3,11 +3,34 @@ import type React from "react"
 import { useState } from "react"
 import { FileText, Menu, X } from "lucide-react"
 import Link from "next/link"
+import { usePathname } from "next/navigation" // Import usePathname
 import { useAuth } from "../context/AuthContext"
 
 const Navbar: React.FC = () => {
   const { isAuthenticated, user, logout } = useAuth()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const pathname = usePathname() // Get current pathname
+
+  const getLinkClasses = (href: string) => {
+    const isActive = pathname === href
+    return `relative text-base font-semibold transition-all duration-300 group ${
+      isActive ? "text-blue-600" : "text-gray-600 hover:text-blue-600"
+    }`
+  }
+
+  const getSpanClasses = (href: string) => {
+    const isActive = pathname === href
+    return `absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 transition-all duration-300 ${
+      isActive ? "w-full" : "w-0 group-hover:w-full"
+    }`
+  }
+
+  const getMobileLinkClasses = (href: string) => {
+    const isActive = pathname === href
+    return `block text-base font-semibold py-2 transition-colors duration-300 ${
+      isActive ? "text-blue-600" : "text-gray-600 hover:text-blue-600"
+    }`
+  }
 
   return (
     <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-white/20 shadow-lg">
@@ -24,37 +47,25 @@ const Navbar: React.FC = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-8">
-          <Link
-            className="relative text-gray-600 hover:text-blue-600 text-base font-semibold transition-all duration-300 group"
-            href="/"
-          >
+          <Link className={getLinkClasses("/")} href="/">
             Home
-            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 group-hover:w-full transition-all duration-300"></span>
+            <span className={getSpanClasses("/")}></span>
           </Link>
 
-          <Link
-            className="relative text-gray-600 hover:text-blue-600 text-base font-semibold transition-all duration-300 group"
-            href="/contact"
-          >
+          <Link className={getLinkClasses("/contact")} href="/contact">
             Contact
-            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 group-hover:w-full transition-all duration-300"></span>
+            <span className={getSpanClasses("/contact")}></span>
           </Link>
 
           {isAuthenticated && (
             <>
-              <Link
-                className="relative text-gray-600 hover:text-blue-600 text-base font-semibold transition-all duration-300 group"
-                href="/cv-analysis"
-              >
+              <Link className={getLinkClasses("/cv-analysis")} href="/cv-analysis">
                 CV Analysis
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 group-hover:w-full transition-all duration-300"></span>
+                <span className={getSpanClasses("/cv-analysis")}></span>
               </Link>
-              <Link
-                className="relative text-gray-600 hover:text-blue-600 text-base font-semibold transition-all duration-300 group"
-                href="/settings"
-              >
+              <Link className={getLinkClasses("/settings")} href="/settings">
                 Settings
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 group-hover:w-full transition-all duration-300"></span>
+                <span className={getSpanClasses("/settings")}></span>
               </Link>
             </>
           )}
@@ -101,7 +112,7 @@ const Navbar: React.FC = () => {
         <div className="md:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur-md border-b border-white/20 shadow-lg">
           <div className="container mx-auto px-6 py-4 space-y-4">
             <Link
-              className="block text-gray-600 hover:text-blue-600 text-base font-semibold py-2 transition-colors duration-300"
+              className={getMobileLinkClasses("/")}
               href="/"
               onClick={() => setIsMobileMenuOpen(false)}
             >
@@ -109,7 +120,7 @@ const Navbar: React.FC = () => {
             </Link>
 
             <Link
-              className="block text-gray-600 hover:text-blue-600 text-base font-semibold py-2 transition-colors duration-300"
+              className={getMobileLinkClasses("/contact")}
               href="/contact"
               onClick={() => setIsMobileMenuOpen(false)}
             >
@@ -119,14 +130,14 @@ const Navbar: React.FC = () => {
             {isAuthenticated && (
               <>
                 <Link
-                  className="block text-gray-600 hover:text-blue-600 text-base font-semibold py-2 transition-colors duration-300"
+                  className={getMobileLinkClasses("/cv-analysis")}
                   href="/cv-analysis"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   CV Analysis
                 </Link>
                 <Link
-                  className="block text-gray-600 hover:text-blue-600 text-base font-semibold py-2 transition-colors duration-300"
+                  className={getMobileLinkClasses("/settings")}
                   href="/settings"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >

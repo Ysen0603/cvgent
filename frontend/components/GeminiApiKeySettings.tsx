@@ -67,11 +67,11 @@ const GeminiApiKeySettings: React.FC<GeminiApiKeySettingsProps> = ({
             Gemini API Key
           </label>
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
               <Key className="h-5 w-5 text-gray-400" />
             </div>
             <input
-              className="w-full pl-12 pr-12 py-4 bg-white/70 backdrop-blur-sm border-2 border-gray-200 rounded-2xl shadow-inner placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
+              className="w-full pl-11 pr-12 py-4 bg-white/70 backdrop-blur-sm border-2 border-gray-200 rounded-2xl shadow-inner placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
               id="api-key"
               name="api-key"
               placeholder="Enter your Gemini API Key"
@@ -81,7 +81,7 @@ const GeminiApiKeySettings: React.FC<GeminiApiKeySettingsProps> = ({
             />
             <button
               type="button"
-              className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors duration-300"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors duration-300"
               onClick={() => setShowApiKey(!showApiKey)}
             >
               {showApiKey ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}

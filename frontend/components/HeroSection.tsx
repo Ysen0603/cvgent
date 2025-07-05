@@ -52,17 +52,18 @@ export default function HeroSection() {
         <div className="mt-12 flex flex-wrap justify-center gap-8 mb-12">
           <div className="flex items-center gap-2 px-4 py-2 bg-white/60 backdrop-blur-sm rounded-full border border-gray-200">
             <CheckCircle className="w-5 h-5 text-green-500" />
-            <span className="text-gray-700 font-medium">98% Success Rate</span>
+            <span className="text-gray-700 font-medium">Upload CV & Description</span>
           </div>
           <div className="flex items-center gap-2 px-4 py-2 bg-white/60 backdrop-blur-sm rounded-full border border-gray-200">
             <Zap className="w-5 h-5 text-yellow-500" />
-            <span className="text-gray-700 font-medium">10k+ CVs Analyzed</span>
+            <span className="text-gray-700 font-medium">Analyze Content</span>
           </div>
           <div className="flex items-center gap-2 px-4 py-2 bg-white/60 backdrop-blur-sm rounded-full border border-gray-200">
             <Target className="w-5 h-5 text-blue-500" />
-            <span className="text-gray-700 font-medium">5min Analysis</span>
+            <span className="text-gray-700 font-medium">View Results</span>
           </div>
         </div>
+
 
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row justify-center items-center gap-6">
@@ -77,26 +78,13 @@ export default function HeroSection() {
             <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </Link>
 
-          <Link
-            className="group w-full sm:w-auto flex min-w-[220px] cursor-pointer items-center justify-center overflow-hidden rounded-2xl h-14 px-8 bg-white/80 backdrop-blur-sm border-2 border-gray-300 text-gray-700 text-lg font-bold leading-normal tracking-wide hover:bg-white hover:border-blue-400 hover:text-blue-600 hover:shadow-xl transition-all duration-300"
-            href="#features"
-          >
-            <span className="flex items-center gap-2">
-              Learn More
-              <div className="w-2 h-2 bg-blue-500 rounded-full group-hover:animate-ping"></div>
-            </span>
-          </Link>
+         
         </div>
 
         {/* Trust Indicators */}
         <div className="mt-16 flex flex-wrap justify-center items-center gap-8 opacity-60">
-          <div className="text-sm text-gray-500 font-medium">Trusted by professionals at</div>
-          <div className="flex items-center gap-6">
-            <div className="px-4 py-2 bg-white/40 rounded-lg text-gray-600 font-semibold">Google</div>
-            <div className="px-4 py-2 bg-white/40 rounded-lg text-gray-600 font-semibold">Microsoft</div>
-            <div className="px-4 py-2 bg-white/40 rounded-lg text-gray-600 font-semibold">Amazon</div>
-            <div className="px-4 py-2 bg-white/40 rounded-lg text-gray-600 font-semibold">Meta</div>
-          </div>
+          <div className="text-sm text-gray-500 font-medium">Created with ꨄ︎ by Yassine ennaya </div>
+          
         </div>
       </div>
 
