@@ -39,6 +39,15 @@ const CVAnalysisForm: React.FC<CVAnalysisFormProps> = ({ onAnalysisComplete }) =
     }
   }
 
+  const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    // Only allow changes if CV is available and not loading
+    if (hasCv && !loading) {
+      setJobDescription(e.target.value)
+    }
+  }
+
+  const isTextareaDisabled = !hasCv || loading
+
   return (
     <div className="relative">
       <div className="bg-white/80 backdrop-blur-md shadow-2xl rounded-3xl p-8 border border-white/20 relative overflow-hidden">
@@ -60,7 +69,9 @@ const CVAnalysisForm: React.FC<CVAnalysisFormProps> = ({ onAnalysisComplete }) =
 
           {/* CV Status */}
           <div
-            className={`flex items-center gap-3 p-4 rounded-2xl mb-6 ${hasCv ? "bg-green-50 border border-green-200" : "bg-red-50 border border-red-200"}`}
+            className={`flex items-center gap-3 p-4 rounded-2xl mb-6 ${
+              hasCv ? "bg-green-50 border border-green-200" : "bg-red-50 border border-red-200"
+            }`}
           >
             <div className={`w-3 h-3 rounded-full ${hasCv ? "bg-green-500 animate-pulse" : "bg-red-500"}`}></div>
             <div className="flex-1">
@@ -90,19 +101,41 @@ const CVAnalysisForm: React.FC<CVAnalysisFormProps> = ({ onAnalysisComplete }) =
               </label>
               <div className="relative">
                 <textarea
-                  className="w-full min-h-[200px] px-4 py-4 bg-white/70 backdrop-blur-sm border-2 border-gray-200 rounded-2xl shadow-inner placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 resize-none"
+                  className={`w-full min-h-[200px] px-4 py-4 backdrop-blur-sm border-2 rounded-2xl shadow-inner placeholder-gray-400 focus:outline-none transition-all duration-300 resize-none ${
+                    isTextareaDisabled
+                      ? "bg-gray-100 border-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-white/70 border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-text"
+                  }`}
                   id="job-description"
                   name="job-description"
-                  placeholder="Paste the complete job description here... Include requirements, responsibilities, and qualifications for the best analysis."
+                  placeholder={
+                    !hasCv
+                      ? "Please upload your CV in settings first to enable job description analysis..."
+                      : loading
+                        ? "Analysis in progress..."
+                        : "Paste the complete job description here... Include requirements, responsibilities, and qualifications for the best analysis."
+                  }
                   rows={8}
                   value={jobDescription}
-                  onChange={(e) => setJobDescription(e.target.value)}
+                  onChange={handleTextareaChange}
                   required
-                  disabled={!hasCv || loading}
+                  readOnly={isTextareaDisabled}
                 />
                 <div className="absolute bottom-4 right-4 text-sm text-gray-400">
                   {jobDescription.length} characters
                 </div>
+
+                {/* Overlay for disabled state */}
+                {isTextareaDisabled && (
+                  <div className="absolute inset-0 bg-gray-100/50 rounded-2xl flex items-center justify-center">
+                    <div className="text-center p-4">
+                      <AlertCircle className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                      <p className="text-gray-600 font-medium">
+                        {!hasCv ? "Upload CV to enable" : "Analysis in progress..."}
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -111,20 +144,15 @@ const CVAnalysisForm: React.FC<CVAnalysisFormProps> = ({ onAnalysisComplete }) =
               <button
                 type="submit"
                 disabled={loading || !hasCv || !jobDescription.trim()}
-                className="cursor-pointer w-full flex items-center justify-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-lg font-bold rounded-2xl shadow-2xl hover:shadow-blue-500/25 transform hover:scale-105  transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                className="cursor-pointer w-full flex items-center justify-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-lg font-bold rounded-2xl shadow-2xl hover:shadow-blue-500/25 transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:scale-100"
               >
-                {loading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white mr-3"></div>
-                    <span>Analyzing Your CV...</span>
-                  </>
-                ) : (
-                  <>
-                    <TrendingUp className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-300 " />
+
+                    <TrendingUp className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-300" />
                     <span>Analyze Now</span>
-                  </>
+                
+                {!loading && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
               </button>
 
               {error && (
