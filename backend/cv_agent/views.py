@@ -109,21 +109,7 @@ def manage_user_cv(request):
         serializer = UserProfileSerializer(user_profile)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    elif request.method == 'DELETE':
-        if user_profile.cv_file:
-            try:
-                user_profile.cv_file.delete() # Deletes the file from storage
-            except PermissionError:
-                time.sleep(0.5)
-                try:
-                    user_profile.cv_file.delete()
-                except PermissionError:
-                    return Response({"message": "File is currently in use. Please close any preview and try again."}, status=423)
-            user_profile.cv_file = None
-            user_profile.cv_url = None
-            user_profile.save()
-            return Response({"message": "CV deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
-        return Response({"message": "No CV to delete."}, status=status.HTTP_404_NOT_FOUND)
+    
 
 # Serve PDF inline (for CV preview)
 @api_view(['GET'])

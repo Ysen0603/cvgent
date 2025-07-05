@@ -1,288 +1,258 @@
-"use client";
-import React, { useState, useEffect, useRef } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import { getGeminiApiKey, setGeminiApiKey } from '../../lib/api/gemini';
-import { updateUserProfile } from '../../lib/api/auth';
-import { uploadCv, deleteCv } from '../../lib/api/userCv'; // Removed getUserCv
-import PdfPreview from '../../components/PdfPreview';
+"use client"
+import type React from "react"
+import { useState, useEffect, useRef } from "react"
+import { useAuth } from "../../context/AuthContext"
+import { getGeminiApiKey, setGeminiApiKey } from "../../lib/api/gemini"
+import { updateUserProfile } from "../../lib/api/auth"
+import { uploadCv, deleteCv } from "../../lib/api/userCv"
+import AccountSettingsForm from "../../components/AccountSettingsForm"
+import GeminiApiKeySettings from "../../components/GeminiApiKeySettings"
+import CvManagementSection from "../../components/CvManagementSection"
+import { Settings, Sparkles } from "lucide-react"
 
 const SettingsPage: React.FC = () => {
-  const { user, fetchCurrentUser: refetchUser, updateUserCvProfile } = useAuth();
-  console.log('User from AuthContext (initial/re-render):', user);
-  const [username, setUsername] = useState(user?.username || '');
-  const [email, setEmail] = useState(user?.email || '');
-  const [geminiApiKey, setGeminiApiKeyInput] = useState('');
-  const [currentGeminiApiKey, setCurrentGeminiApiKey] = useState<string | null>(null);
-  const [cvFile, setCvFile] = useState<File | null>(null);
-  const [cvUploadMessage, setCvUploadMessage] = useState('');
-  const [cvUploadError, setCvUploadError] = useState('');
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+  const { user, fetchCurrentUser: refetchUser, updateUserCvProfile } = useAuth()
+  const [username, setUsername] = useState(user?.username || "")
+  const [email, setEmail] = useState(user?.email || "")
+  const [geminiApiKey, setGeminiApiKeyInput] = useState("")
+  const [currentGeminiApiKey, setCurrentGeminiApiKey] = useState<string | null>(null)
+  const [cvFile, setCvFile] = useState<File | null>(null)
+  const [cvUploadMessage, setCvUploadMessage] = useState("")
+  const [cvUploadError, setCvUploadError] = useState("")
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [loading, setLoading] = useState(true)
+  const [message, setMessage] = useState("")
+  const [error, setError] = useState("")
 
-  // Initial fetch for Gemini API Key and user data
   useEffect(() => {
     const fetchInitialData = async () => {
-      setLoading(true);
-      // Fetch Gemini API Key
-      const geminiResponse = await getGeminiApiKey();
+      setLoading(true)
+      const geminiResponse = await getGeminiApiKey()
       if (geminiResponse && geminiResponse.api_key) {
-        setCurrentGeminiApiKey(geminiResponse.api_key);
+        setCurrentGeminiApiKey(geminiResponse.api_key)
       } else {
-        setCurrentGeminiApiKey(null);
+        setCurrentGeminiApiKey(null)
       }
-      // Ensure user data is fetched on initial load
-      await refetchUser();
-      setLoading(false);
-    };
-    fetchInitialData();
-  }, []); // Empty dependency array means it runs once on mount
+      await refetchUser()
+      setLoading(false)
+    }
+    fetchInitialData()
+  }, [])
 
-  // Update local states when user object from context changes
   useEffect(() => {
     if (user) {
-      setUsername(user.username || '');
-      setEmail(user.email || '');
+      setUsername(user.username || "")
+      setEmail(user.email || "")
     }
-  }, [user]);
-
-  // Removed the previous useEffect that depended on user and fetched all data
-  // Now, initial data is fetched once, and user data updates via AuthContext
+  }, [user])
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setMessage('');
-    setError('');
+    e.preventDefault()
+    setMessage("")
+    setError("")
+    let success = true
+    let updated = false
 
-    let success = true;
-    let updated = false;
-
-    // Prepare data for user profile update (only send changed and non-empty fields)
-    const profileData: { username?: string; email?: string } = {};
+    const profileData: { username?: string; email?: string } = {}
     if (username && username !== user?.username) {
-      profileData.username = username;
+      profileData.username = username
     }
     if (email && email !== user?.email) {
-      profileData.email = email;
+      profileData.email = email
     }
 
-    // Update User Profile if any field changed
     if (Object.keys(profileData).length > 0) {
-      const userUpdateSuccess = await updateUserProfile(profileData);
+      const userUpdateSuccess = await updateUserProfile(profileData)
       if (userUpdateSuccess) {
-        setMessage('Account information updated successfully!');
-        await refetchUser();
-        updated = true;
+        setMessage("Account information updated successfully!")
+        await refetchUser()
+        updated = true
       } else {
-        setError('Failed to update account information.');
-        success = false;
+        setError("Failed to update account information.")
+        success = false
       }
     }
 
-    // Update Gemini API Key if filled
     if (geminiApiKey) {
-      const geminiKeySuccess = await setGeminiApiKey(geminiApiKey);
+      const geminiKeySuccess = await setGeminiApiKey(geminiApiKey)
       if (geminiKeySuccess) {
-        setMessage(prev => prev + (prev ? ' ' : '') + 'Gemini API Key updated successfully!');
-        setCurrentGeminiApiKey(geminiApiKey);
-        setGeminiApiKeyInput('');
-        updated = true;
+        setMessage((prev) => prev + (prev ? " " : "") + "Gemini API Key updated successfully!")
+        setCurrentGeminiApiKey(geminiApiKey)
+        setGeminiApiKeyInput("")
+        updated = true
       } else {
-        setError(prev => prev + (prev ? ' ' : '') + 'Failed to update Gemini API Key.');
-        success = false;
+        setError((prev) => prev + (prev ? " " : "") + "Failed to update Gemini API Key.")
+        success = false
       }
     }
 
-    // If nothing was updated
     if (!updated && success) {
-      setMessage('Nothing to update.');
+      setMessage("Nothing to update.")
     }
-  };
+  }
 
- const handleCvUpload = async (fileToUpload: File) => {
-   setCvUploadMessage('');
-   setCvUploadError('');
-   setLoading(true);
-   try {
-     await uploadCv(fileToUpload);
-     const updatedProfile = await uploadCv(fileToUpload); // Assuming uploadCv returns the updated profile
-     setCvUploadMessage('CV uploaded successfully!');
-     setCvFile(null); // Clear selected file
-     if (fileInputRef.current) {
-       fileInputRef.current.value = ''; // Clear file input
-     }
-     updateUserCvProfile(updatedProfile); // Directly update context
-   } catch (err) {
-     console.error('Error uploading CV:', err);
-     setCvUploadError('Failed to upload CV. Please try again.');
-   } finally {
-     setLoading(false);
-   }
- };
+  const handleCvUpload = async (fileToUpload: File) => {
+    setCvUploadMessage("")
+    setCvUploadError("")
+    setLoading(true)
+    try {
+      await uploadCv(fileToUpload)
+      const updatedProfile = await uploadCv(fileToUpload)
+      setCvUploadMessage("CV uploaded successfully!")
+      setCvFile(null)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ""
+      }
+      updateUserCvProfile(updatedProfile)
+    } catch (err) {
+      console.error("Error uploading CV:", err)
+      setCvUploadError("Failed to upload CV. Please try again.")
+    } finally {
+      setLoading(false)
+    }
+  }
 
- const handleCvFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-   if (e.target.files && e.target.files[0]) {
-     const file = e.target.files[0];
-     setCvFile(file); // Set the file for preview if needed
-     handleCvUpload(file); // Immediately trigger upload
-   } else {
-     setCvFile(null);
-   }
- };
+  const handleCvFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0]
+      setCvFile(file)
+      handleCvUpload(file)
+    } else {
+      setCvFile(null)
+    }
+  }
 
- const handleCvDelete = async () => {
-   setCvUploadMessage('');
-   setCvUploadError('');
-   setLoading(true);
-   // Optimistically remove the CV from the UI before deleting
-   updateUserCvProfile({ ...user?.userprofile, cv_url: null, cv_file: null });
-   try {
-     await deleteCv(); // This now returns null on success
-     setCvUploadMessage('CV deleted successfully!');
-     updateUserCvProfile(null); // Directly update context to clear CV
-   } catch (err) {
-     console.error('Error deleting CV:', err);
-     setCvUploadError('Failed to delete CV. Please try again.');
-     // Optionally restore the CV if deletion failed
-     await refetchUser();
-   } finally {
-     setLoading(false);
-   }
- };
+  const handleCvDelete = async () => {
+    setCvUploadMessage("");
+    setCvUploadError("");
+    setLoading(true);
+    // Optimistically remove the CV from the UI before deleting
+    updateUserCvProfile({ ...user?.userprofile, cv_url: null, cv_file: null });
+    // Add a small delay to allow the PdfPreview component to unmount and release the file handle
+    await new Promise(resolve => setTimeout(resolve, 100));
+    try {
+      await deleteCv(); // This now returns null on success
+      setCvUploadMessage('CV deleted successfully!');
+      updateUserCvProfile(null); // Directly update context to clear CV
+    } catch (err) {
+      console.error('Error deleting CV:', err);
+      setCvUploadError('Failed to delete CV. Please try again.');
+      // Optionally restore the CV if deletion failed
+      await refetchUser();
+    } finally {
+      setLoading(false);
+    }
+  }
 
- if (loading) {
-   return <div className="text-center py-8">Loading settings...</div>;
- }
+  if (loading) {
+    return (
+      <>
+        
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600"></div>
+            <p className="text-blue-700 font-semibold">Loading settings...</p>
+          </div>
+        </div>
+      </>
+    )
+  }
 
   return (
-    <main className="flex flex-1 justify-center py-8 px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-2xl space-y-8">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900">Settings</h2>
-          <p className="mt-2 text-sm text-gray-600">Manage your account information and API key.</p>
+    <>
+      
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
+        {/* Background Elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full opacity-10 animate-pulse"></div>
+          <div className="absolute top-60 right-20 w-24 h-24 bg-gradient-to-r from-pink-400 to-red-500 rounded-full opacity-10 animate-bounce"></div>
+          <div className="absolute bottom-40 left-20 w-20 h-20 bg-gradient-to-r from-green-400 to-blue-500 rounded-full opacity-10 animate-pulse delay-1000"></div>
         </div>
-        <form className="mt-8 space-y-6 bg-white p-6 sm:p-8 rounded-xl shadow-lg" onSubmit={handleSubmit}>
-          {message && <p className="text-green-600 text-center mb-4">{message}</p>}
-          {error && <p className="text-red-600 text-center mb-4">{error}</p>}
 
-          <section>
-            <h3 className="text-xl font-semibold text-gray-800 mb-6 border-b pb-3">Account Information</h3>
-            <div className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 pb-1.5" htmlFor="username">Username</label>
-                <input
-                  autoComplete="username"
-                  className="form-input block w-full rounded-lg border-gray-300 shadow-sm focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)] sm:text-sm py-3 px-4 placeholder-gray-400"
-                  id="username"
-                  name="username"
-                  placeholder="e.g. JohnDoe"
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 pb-1.5" htmlFor="email">Email address</label>
-                <input
-                  autoComplete="email"
-                  className="form-input block w-full rounded-lg border-gray-300 shadow-sm focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)] sm:text-sm py-3 px-4 placeholder-gray-400"
-                  id="email"
-                  name="email"
-                  placeholder="e.g. john.doe@example.com"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-              <div>
-                <p className="mt-1 text-xs text-gray-500">Leave blank if you don't want to change it.</p>
-              </div>
+        <div className="relative container mx-auto px-6 py-12">
+          {/* Header Section */}
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 backdrop-blur-sm border border-blue-200 text-blue-700 text-sm font-medium mb-6 shadow-lg">
+              <Sparkles className="w-4 h-4" />
+              <span>Account Management</span>
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
             </div>
-          </section>
-          <section className="pt-6">
-            <h3 className="text-xl font-semibold text-gray-800 mb-6 border-b pb-3">API Configuration</h3>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 pb-1.5" htmlFor="api-key">Gemini API Key</label>
-              <input
-                className="form-input block w-full rounded-lg border-gray-300 shadow-sm focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)] sm:text-sm py-3 px-4 placeholder-gray-400"
-                id="api-key"
-                name="api-key"
-                placeholder="Enter your Gemini API Key"
-                type="password"
-                value={geminiApiKey}
-                onChange={(e) => setGeminiApiKeyInput(e.target.value)}
-              />
-              <p className="mt-1 text-xs text-gray-500">Your API key is stored securely and used solely for CV analysis.</p>
-              {
-                currentGeminiApiKey ? (
-                  <p className="mt-1 text-xs text-green-800 font-bold">Current API Key is set. (For security, full key is not displayed)</p>
-                ) : (
-                  <p className="mt-1 text-xs text-red-500 font-bold">No Gemini API Key set.</p>
-                )
-              }
-            </div>
-            <div className="pt-6 flex justify-end">
-            <button
-              type="submit"
-              className="group relative flex justify-center rounded-md border border-transparent bg-[var(--primary-color)] hover:bg-[var(--text-primary)] cursor-pointer py-2.5 px-6 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:ring-offset-2 transition-colors"
-            >
-              Update Settings
-            </button>
+
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight mb-6">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800">
+                Settings
+              </span>
+            </h1>
+
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+              Manage your account information, API configuration, and CV uploads in one
+              <span className="text-blue-600 font-semibold"> secure place</span>.
+            </p>
           </div>
-          </section>
 
-          <section className="pt-6">
-            <h3 className="text-xl font-semibold text-gray-800 mb-6 border-b pb-3">CV Management</h3>
-            <div className="space-y-4">
-              {cvUploadMessage && <p className="text-green-600 text-center">{cvUploadMessage}</p>}
-              {cvUploadError && <p className="text-red-600 text-center">{cvUploadError}</p>}
-
-              {user?.userprofile?.cv_url ? (
-                <div className="flex flex-col gap-4 bg-gray-50 p-4 rounded-lg shadow-sm">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-semibold text-gray-900">Uploaded CV:</p>
-                    <button
-                      type="button"
-                      onClick={handleCvDelete}
-                      className="ml-4 inline-flex justify-center rounded-md border border-transparent bg-red-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                    >
-                      Remove CV
-                    </button>
+          {/* Main Content */}
+          <div className="w-full mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <div className="space-y-8">
+              <form onSubmit={handleSubmit} className="space-y-8">
+                {/* Global Messages */}
+                {message && (
+                  <div className="bg-green-50/80 backdrop-blur-sm border border-green-200 rounded-2xl p-4 flex items-center gap-3">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <p className="text-green-700 font-medium">{message}</p>
                   </div>
-                  <PdfPreview url={user.userprofile.cv_url} />
-                </div>
-              ) : (
-                <p className="text-sm font-semibold text-red-500">No CV currently uploaded.</p>
-              )}
+                )}
+                {error && (
+                  <div className="bg-red-50/80 backdrop-blur-sm border border-red-200 rounded-2xl p-4 flex items-center gap-3">
+                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                    <p className="text-red-700 font-medium">{error}</p>
+                  </div>
+                )}
 
-              <div className="mt-4">
-                <label htmlFor="cv-upload" className="block text-sm font-medium text-gray-700 pb-1.5">Upload your CV (PDF only)</label>
-                <input
-                  id="cv-upload"
-                  name="cv-upload"
-                  type="file"
-                  accept=".pdf"
-                  onChange={handleCvFileChange}
-                  ref={fileInputRef}
-                  className="block w-full text-sm text-gray-500
-                    file:mr-4 file:py-2 file:px-4
-                    file:rounded-md file:border-0
-                    file:text-sm file:font-semibold
-                    file:bg-[var(--primary-color)] file:text-white
-                    hover:file:bg-[var(--text-primary)]
-                    cursor-pointer
-                    "
+                <AccountSettingsForm
+                  username={username}
+                  email={email}
+                  setUsername={setUsername}
+                  setEmail={setEmail}
+                  message={message}
+                  error={error}
                 />
-              </div>
+
+                <GeminiApiKeySettings
+                  geminiApiKey={geminiApiKey}
+                  setGeminiApiKeyInput={setGeminiApiKeyInput}
+                  currentGeminiApiKey={currentGeminiApiKey}
+                  message={message}
+                  error={error}
+                />
+
+                {/* Submit Button */}
+                <div className="flex justify-center pt-8">
+                  <button
+                    type="submit"
+                    className="cursor-pointer group relative flex items-center justify-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-lg font-bold rounded-2xl shadow-2xl hover:shadow-blue-500/25 transform hover:scale-105 transition-all duration-300"
+                  >
+                    <Settings className="w-5 h-5 mr-2 group-hover:rotate-90 transition-transform duration-300" />
+                    <span className="relative z-10">Update Settings</span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
+                  </button>
+                </div>
+              </form>
             </div>
-          </section>
 
-          
-        </form>
+            <CvManagementSection
+              user={user}
+              cvFile={cvFile}
+              setCvFile={setCvFile}
+              cvUploadMessage={cvUploadMessage}
+              cvUploadError={cvUploadError}
+              fileInputRef={fileInputRef}
+              handleCvFileChange={handleCvFileChange}
+            />
+          </div>
+        </div>
       </div>
-    </main>
-  );
-};
+    </>
+  )
+}
 
-export default SettingsPage;
+export default SettingsPage
