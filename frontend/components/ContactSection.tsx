@@ -188,7 +188,7 @@ export default function ContactSection() {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="group relative w-full flex items-center justify-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-lg font-bold rounded-2xl shadow-2xl hover:shadow-blue-500/25 transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                    className="cursor-pointer group  w-full flex items-center justify-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-lg font-bold rounded-2xl shadow-2xl hover:shadow-blue-500/25 transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                   >
                     {isLoading ? (
                       <>
@@ -231,7 +231,7 @@ export default function ContactSection() {
                   <p className="text-gray-600 text-sm">Get help via email</p>
                 </div>
               </div>
-              <p className="text-blue-600 font-semibold">support@cvgent.com</p>
+              <p className="text-blue-600 font-semibold">yassineennaya2264@gmail.com</p>
             </div>
 
             <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-lg">

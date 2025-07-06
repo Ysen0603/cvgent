@@ -7,7 +7,6 @@ import { User, Mail, Lock, UserPlus, Eye, EyeOff, Sparkles, AlertCircle, FileTex
 
 const RegisterForm: React.FC = () => {
   const [username, setUsername] = useState("")
-  
   const [password, setPassword] = useState("")
   const [password2, setPassword2] = useState("")
   const [error, setError] = useState("")
@@ -96,7 +95,7 @@ const RegisterForm: React.FC = () => {
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
           </div>
 
-          <div className="flex items-center justify-center gap-3 mb-4">
+          <div className="flex items-center justify-center gap-3 mb-4 ">
             <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 shadow-lg">
               <FileText className="w-6 h-6 text-white" />
             </div>
@@ -107,12 +106,12 @@ const RegisterForm: React.FC = () => {
         </div>
 
         {/* Register Card */}
-        <div className="bg-white/80 backdrop-blur-md shadow-2xl rounded-3xl p-8 border border-white/20 relative overflow-hidden">
+        <div className="bg-white/80 backdrop-blur-md shadow-2xl rounded-3xl p-8 border border-white/20 relative overflow-hidden w-[60vh]">
           {/* Decorative Elements */}
           <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-full -translate-y-16 translate-x-16"></div>
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-green-500/10 to-blue-500/10 rounded-full translate-y-12 -translate-x-12"></div>
 
-          <div className="relative z-10">
+          <div className="relative z-10 ">
             {/* Header */}
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold text-gray-800 mb-2">Create Account</h2>
@@ -140,7 +139,11 @@ const RegisterForm: React.FC = () => {
                   </div>
                   <input
                     autoComplete="username"
-                    className="w-full pl-11 pr-4 py-4 bg-white/70 backdrop-blur-sm border-2 border-gray-200 rounded-2xl shadow-inner placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 disabled:opacity-50"
+                    className={`w-full pl-11 pr-4 py-4 backdrop-blur-sm border-2 rounded-2xl shadow-inner placeholder-gray-400 focus:outline-none transition-all duration-300 ${
+                      isLoading
+                        ? "bg-gray-100 border-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-white/70 border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-text"
+                    }`}
                     id="username"
                     name="username"
                     placeholder="Choose a unique username"
@@ -166,7 +169,11 @@ const RegisterForm: React.FC = () => {
                   </div>
                   <input
                     autoComplete="new-password"
-                    className="w-full pl-11 pr-12 py-4 bg-white/70 backdrop-blur-sm border-2 border-gray-200 rounded-2xl shadow-inner placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 disabled:opacity-50"
+                    className={`w-full pl-11 pr-12 py-4 backdrop-blur-sm border-2 rounded-2xl shadow-inner placeholder-gray-400 focus:outline-none transition-all duration-300 ${
+                      isLoading
+                        ? "bg-gray-100 border-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-white/70 border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-text"
+                    }`}
                     id="password"
                     name="password"
                     placeholder="Create a strong password"
@@ -178,7 +185,7 @@ const RegisterForm: React.FC = () => {
                   />
                   <button
                     type="button"
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors duration-300"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors duration-300 z-10"
                     onClick={() => setShowPassword(!showPassword)}
                     disabled={isLoading}
                   >
@@ -210,16 +217,18 @@ const RegisterForm: React.FC = () => {
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-                    <Lock className="h-5 w-5 " />
+                    <Lock className="h-5 w-5 text-gray-400" />
                   </div>
                   <input
                     autoComplete="new-password"
-                    className={`w-full pl-11 pr-12 py-4 bg-white/70 backdrop-blur-sm border-2 rounded-2xl shadow-inner placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent transition-all duration-300 disabled:opacity-50 ${
-                      password2 && password !== password2
-                        ? "border-red-300 focus:ring-red-500"
-                        : password2 && password === password2
-                          ? "border-green-300 focus:ring-green-500"
-                          : "border-gray-200 focus:ring-blue-500"
+                    className={`w-full pl-11 pr-12 py-4 backdrop-blur-sm border-2 rounded-2xl shadow-inner placeholder-gray-400 focus:outline-none transition-all duration-300 ${
+                      isLoading
+                        ? "bg-gray-100 border-gray-300 text-gray-500 cursor-not-allowed"
+                        : password2 && password !== password2
+                          ? "bg-white/70 border-red-300 focus:ring-2 focus:ring-red-500 focus:border-transparent cursor-text"
+                          : password2 && password === password2
+                            ? "bg-white/70 border-green-300 focus:ring-2 focus:ring-green-500 focus:border-transparent cursor-text"
+                            : "bg-white/70 border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-text"
                     }`}
                     id="password2"
                     name="password2"
@@ -232,7 +241,7 @@ const RegisterForm: React.FC = () => {
                   />
                   <button
                     type="button"
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors duration-300"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors duration-300 z-10"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     disabled={isLoading}
                   >
@@ -265,17 +274,16 @@ const RegisterForm: React.FC = () => {
                   disabled={
                     isLoading ||
                     !username.trim() ||
-                  
                     !password.trim() ||
                     !password2.trim() ||
                     password !== password2 ||
                     passwordStrength < 3
                   }
-                  className="cursor-pointer w-full flex items-center justify-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-lg font-bold rounded-2xl shadow-2xl hover:shadow-blue-500/25 transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                  className="cursor-pointer relative w-full flex items-center justify-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-lg font-bold rounded-2xl shadow-2xl hover:shadow-blue-500/25 transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:scale-100"
                 >
                   {isLoading ? (
                     <>
-                      <div className="rounded-full h-5 w-5 border-t-2 border-b-2 border-white mr-3"></div>
+                      <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white mr-3"></div>
                       <span>Creating Account...</span>
                     </>
                   ) : (
